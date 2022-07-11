@@ -1,60 +1,91 @@
-# tmp
+# OSPF协议培训胶片
+- - -
 
-#include<iostream>
-#include<string>
-#include<vector>
-using namespace std;
+## 概念
+### 基本概念
+- OSPF(Open Shortest Path First, 开放式最短路径优先)
+- IETF开发的链路状态协议
+- 协议标准：RFC2328
+- 目前网络中使用最广泛的IGP
+  
+### 特点
+- 适应大规模网络
+- 路由收敛快
+- 无路由环路
+- 支持等价路由
+- 支持区域划分
+- 路由分级管理
+- 报文支持验证
+- 组播发播，节省带宽
+- 支持路由聚合
+- 增量发布
 
-string s1 = "小浣熊、袋鼠、狐狸、猎豹、恐龙、电鳗、蚯蚓、蛾子、大猩猩、美人鱼、大象、海豚、老鼠、蟑螂、蝴蝶、北极熊、长颈鹿、蝎子、金鱼、蜈蚣、孔雀、大灰狼、青蛙、蜻蜓、鸵鸟、山羊、蜗牛、萤火虫、猫头鹰、刺猬、燕子、虾、马蜂、蚂蚁、小白兔、金钱豹";
-string s2 = "北研所、Q14、数通、网络、数据中心、万物互联、拓扑、实习生、编程、debug、C++、Docker、开发、测试、刷题、力扣";
-string s3 = "空调、面粉、酱油、大米、啤酒、洗衣机、音响、饮水机、围裙、军棋、跳棋、餐巾纸、电梯、火锅、熨斗、雨衣、香皂、皮鞋、红领巾、雨鞋、水笼头、日光灯、茶叶、围巾、打印机、日历";
-string s4 = "拔苗助长、画蛇添足、对牛弹琴、如鱼得水、画龙点睛、鸡飞狗跳、掩耳盗铃、对牛弹琴、藕断丝连、暴跳如雷、狼吞虎咽、见钱眼开、贼眉鼠眼、牛头马面、虎头蛇尾、兔死狐悲、龙腾虎跃、狗急跳墙、摇头晃脑、撒腿就跑、垂头丧气、昂首挺胸、手舞足蹈、张牙舞爪、眉开眼笑、目瞪口呆、呆若木鸡、哭笑不得、捧腹大笑、指手划脚、蹑手蹑脚、废寝忘食、闻鸡起舞、守株待兔、掩耳盗铃、盲人摸象、狼吞虎咽、抓耳挠腮、争先恐后、一刀两断、坐井观天、快马加鞭";
+### 路由的产生
+- 每个链路状态描述路由器本身能直接可达的路由器/路由
+- 所有的链路状态组成链路状态数据库(LSDB)，该数据库在域内所有路由器之间保持同步
+- 每台路由器都通过SPF算法计算最短路径树
+- 最短路由树上的叶子就是路由
 
-vector<string> func(string s){
-    vector<string> ans;
-    string pattern = "、";
-    string strs = s + pattern;
-    int pos = strs.find(pattern);
-    int size = strs.size();
-    while(pos != string::npos){
-        string x = strs.substr(0, pos);
-        ans.emplace_back(x);
-        strs = strs.substr(pos+1, size);
-        pos = strs.find(pattern);
-    }
-    return ans;
-}
+### 常用名词
+- 自治系统(AS)：使用同一路由协议交换路由信息的一组路由器
+- RouterID：32位整数，用于在自治系统内唯一标识一台运行OSPF的路由器
+- 区域(Area)：OSPF部署的最小单位，区域号是一个32位整数
+  - 好处有：
+  - 控制LSDB规模
+  - 减轻SPF计算量
+  - 减小路由震荡对网络稳定性的影响
+  - 增强可管理性
+- 接口：OSPF运行的基本单位，同一Area的接口才能建立邻居关系
+  - 类型有：
+  - 点对点网络(PPP)
+  - 广播网络
+  - 非广播网络(NBMA)
+  - 点对多点网络(P2MP)
+- 骨干区域(Backbone Area)：区域号为0.0.0.0，负责发布其他区域之间的路由信息，必须连续
+- 虚连接(virtual link)：为ABR通向骨干区建立一个隧道，修复不连续的骨干区
+- 传输区域(Transit Area)：包含若干虚连接，被用来连接骨干网
+- 存根区域(Stub Area)：AS-external-LSA不会被洪泛进该区域，使用Summary-LSA宣告默认路径
+- 指定路由器(DR)：与网络中所有路由器邻接，为网络生成Network-LSA
+- 备份指定路由器(BDR)：与网络中所有路由器邻接，并在上一台DR失效时成为DR
+- 花费(Cost)：16位正数，表示出接口的Cost值，Cost值越小链路越优
 
-int main(){
-    vector<string> nums1 = func(s1);
-    vector<string> nums2 = func(s2);
-    vector<string> nums3 = func(s3);
-    vector<string> nums4 = func(s4);
-    int key;
-    while(key != -1){
-        cout << "请输入组别(1-4)：";
-        cin >> key;
-        if(key == 1){
-            int size = nums1.size();
-            int index = rand() % size;
-            cout << "请绘画：" << nums1[index] << endl;
-        }
-        else if(key == 2){
-            int size = nums2.size();
-            int index = rand() % size;
-            cout << "请绘画：" << nums2[index] << endl;
-        }
-        else if(key == 3){
-            int size = nums3.size();
-            int index = rand() % size;
-            cout << "请绘画：" << nums3[index] << endl;
-        }
-        else if(key == 4){
-            int size = nums4.size();
-            int index = rand() % size;
-            cout << "请绘画：" << nums4[index] << endl;
-        }
-        else continue;
-    }
-    return 0;
-}
+- - -
+
+## 协议细节
+### OSPF报文类型
+- Hello报文：发现并维持(保活)邻居关系，选举DR/BDR
+- DD报文：描述自身数据库，用于LSDB同步
+- LSR报文：传送更新LSB的请求，用于LSDB同步
+- LSU报文：用于将链路状态的变化(更新的LSB)同步给邻接路由器
+- LSAck报文：用于对链路状态的更新进行应答
+
+### 形成邻接
+- Hello协议：通过收发Hello包(双向通讯)发现邻居，选举DR后判断是否需要形成邻接
+- 数据库同步：通过"数据库交换过程"保持邻接路由器之间的LSDB同步
+  - 步骤：
+  - 相邻的两台路由器收发DD包来协商主从
+  - 路由器向邻居发送一系列DD包来描述自身数据库(一组LSA)
+  - 邻居将收到的数据与自身数据库进行比较，发现新LSA时进行记录
+  - 邻居将需要请求更新的LSA列表封装到LSR包中发出
+  - 路由器对LSR进行响应，发送LSU包
+  - 邻居返回LSAck包
+  - 当所有请求都得到确认后完成同步
+- 邻接图：描述网络上的邻接关系
+
+### 计算路由
+- 首先使用SPF算法计算区域内路由
+  - 由链路状态数据库生成带权有向图
+  - 以自己为根节点计算最小生成树
+  - 生成路由表
+- 使用DV算法计算区域间路由
+- 使用骨干区域的LSA来修正路由
+- 使用DV算法计算AS间路由
+
+### LSA分类：
+- Router-LSAs：由所有路由器产生，表述路由器在一个区域内所有接口的状态，仅在一个区域内洪泛
+- Network-LSAs：由广播/NBMA网络中的指定路由器产生，包含接入该网络的路由器列表，仅在一个区域内洪泛
+- Net-Summary-LSAs：由ABR产生，描述一条在区域外但在AS内的路径(区域间路径),在与该LSA关联的区域内洪泛
+- ASBR-Summary-LSA：由ABR产生，描述一条到达区域外ASBR的路径(区域间路径),在与该LSA关联的区域内洪泛
+- AS-external-LSAs：由ASBR产生，描述另一AS中的一条路径，在整个AS内洪泛(不包含末梢区域)
+- ...
+- - -
